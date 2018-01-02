@@ -20,6 +20,8 @@ namespace DotNetCoreMnist
         private Net<double> _net;
         private int _stepCount;
         private SgdTrainer<double> _trainer;
+        //add url
+        private string url = "";
 
         static void Main(string[] args)
         {
@@ -54,7 +56,7 @@ namespace DotNetCoreMnist
             else
             {
                 HttpClient httpClient = new HttpClient();
-                var res = httpClient.GetStringAsync($"https://www.wang-yueyang.com/api/nets/net/{trainId}").Result;
+                var res = httpClient.GetStringAsync($"{url}/api/nets/net/{trainId}").Result;
                 var net = JsonConvert.DeserializeObject<Net>(res);
                 this._net = SerializationExtensions.FromJson<double>(net.NetText);
             }
@@ -92,7 +94,7 @@ namespace DotNetCoreMnist
                 while (step > 0)
                 {                  
                     var client = new HttpClient();
-                    var x = client.PostAsync(@"https://www.wang-yueyang.com/api/nets/AddNet",
+                    var x = client.PostAsync(@"{url}/api/nets/AddNet",
                         new StringContent(JsonConvert.SerializeObject(new { NetText = json }), Encoding.UTF8, "application/json"));
                     x.Wait();
                     if (x.Result.StatusCode == System.Net.HttpStatusCode.OK)
