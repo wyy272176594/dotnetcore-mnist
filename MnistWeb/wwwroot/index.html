@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>mnist</title>
+  <link rel="stylesheet" href="css/cropper.min.css">
+    <link rel="stylesheet" href="css/input.css">
+  <style>
+    .container {
+      max-width: 640px;
+      margin: 20px auto;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    .cropper-view-box,
+    .cropper-face {
+      border-radius: 50%;
+    }
+    .row,
+    .preview {
+          overflow: hidden;
+    }
+    .col {
+          float: left;
+    }
+    .col-1 {
+          width: 15%;
+    }
+      .col-6 {
+          width: 75%;
+      }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>截取一个号码</h1>
+    <div class="row">
+        <div class="col col-6">
+            <img id="image" src="imgs/numbers.jpg" alt="Picture">
+        </div>
+        <div class="col col-1"style="margin-left:10px">
+            <a class="fileinput-button" href="#">
+                <span>更改图片</span>
+                <input type="file" name="imgfile" id="imgfile">
+            </a>
+            <div class="preview">
+                <p>
+                    <button type="button" id="button">截取并预测</button>                 
+                </p>
+                <div id="result"></div>
+                <div id="result784" style="margin-top:10px"></div>
+                <h3 id="num" style="margin-top:10px"></h3>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <script src="js/cropper.min.js"></script>
+  <script>
+    (function () {
+
+      window.addEventListener('DOMContentLoaded', function () {
+        var image = document.getElementById('image');
+        var button = document.getElementById('button');
+        var result = document.getElementById('result');
+        var result784 = document.getElementById('result784');
+        var imgfile = document.getElementById('imgfile');
+        imgfile.onchange = function () {
+            var url = preImg('imgfile', 'image');
+            cropper.replace(url);
+        }
+        
+        var croppable = false;
+        var cropper = new Cropper(image, {
+          aspectRatio: 1,
+          viewMode: 1,
+          ready: function () {
+            croppable = true;
+          }
+        });
+
+        button.onclick = function () {
+          var croppedCanvas;
+          var roundedCanvas;
+          var roundedImage;
+
+          if (!croppable) {
+            return;
+          }
+
+          // Crop
+          croppedCanvas = cropper.getCroppedCanvas();
+          croppedCanvas784 = cropper.getCroppedCanvas({ width: 28, height: 28 })
+          
+
+          // Show
+          roundedImage = document.createElement('img');
+          roundedImage.src = croppedCanvas.toDataURL();
+          result.innerHTML = '';
+          result.appendChild(roundedImage)
+          grey(croppedCanvas784)
+        };
+
+      });
+
+      var json=""
+      function grey(canvas) {
+          var result784 = document.getElementById('result784');
+          var context = canvas.getContext('2d');
+          var imagedata = context.getImageData(0, 0, 28, 28);//width height:28
+          var pix = imagedata.data;
+          var bytes = [];
+          for (var i = 0, n = pix.length; i < n; i += 4) {
+              var grayscale = pix[i] * .3 + pix[i + 1] * .59 + pix[i + 2] * .11;
+              var grayscale = 255 - parseInt(grayscale)
+              pix[i] =  grayscale;     // red
+              pix[i + 1] = grayscale;     // green
+              pix[i + 2] = grayscale;     // blue
+              // alpha
+              bytes.push(grayscale);
+          }
+          json = "{\"Bytes\":" + JSON.stringify(bytes) + "}";
+          //console.log(json);
+          post();
+          context.putImageData(imagedata, 0, 0);
+
+          roundedImage784 = document.createElement('img');
+          roundedImage784.src = canvas.toDataURL();
+          result784.innerHTML = '';
+          result784.appendChild(roundedImage784);
+      }
+
+      function post()
+      {
+          if (json == "") return;
+          var xhr = new XMLHttpRequest();
+          xhr.open("post", "https://www.wang-yueyang.com/api/nets/prediction", true);
+          xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+          // send the collected data as JSON
+          xhr.send(json);
+
+          xhr.onloadend = function () {
+              // done
+              if (xhr.status == 200) {
+                  var result = document.getElementById('num');
+                  num.innerHTML = "预测结果："+xhr.response;
+                  //console.log(xhr.response);
+              }
+          };
+      }
+
+      function getFileUrl(sourceId) {
+          var url;
+          if (navigator.userAgent.indexOf("MSIE") >= 1) { // IE 
+              url = document.getElementById(sourceId).value;
+          } else if (navigator.userAgent.indexOf("Firefox") > 0) { // Firefox 
+              url = window.URL.createObjectURL(document.getElementById(sourceId).files.item(0));
+          } else if (navigator.userAgent.indexOf("Chrome") > 0) { // Chrome 
+              url = window.URL.createObjectURL(document.getElementById(sourceId).files.item(0));
+          }
+          return url;
+      }
+
+      function preImg(sourceId, targetId) {
+          var url = getFileUrl(sourceId);
+          var imgPre = document.getElementById(targetId);
+          imgPre.src = url;
+          console.log(url)
+          return url; 
+      } 
+    })();
+  </script>
+</body>
+</html>
