@@ -1,4 +1,5 @@
 # dotnetcore-mnist说明
+效果可见https://www.wang-yueyang.com/mnist 
 * ConvNetSharp.Core和ConvNetSharp.Volume源自C#深度学习的框架 [ConvNetSharp](https://github.com/cbovar/ConvNetSharp)。<br/>
 * DotNetCoreMnist基于.net core，项目基于[ConvNetSharp](https://github.com/cbovar/ConvNetSharp)的mnist数据预处理和训练，小改自[ConvNetSharp](https://github.com/cbovar/ConvNetSharp)例子[MnistDemo](https://github.com/cbovar/ConvNetSharp/tree/master/Examples/MnistDemo)，最终会把训练的结果上传至webapi服务。<br/>
 **注意:** <br/>
