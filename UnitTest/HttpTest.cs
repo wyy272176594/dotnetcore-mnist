@@ -13,7 +13,8 @@ namespace UnitTest
         [TestMethod]
         public async System.Threading.Tasks.Task TestMethodAsync()
         {
-            Bitmap bitmap = new Bitmap(@"D:\test7.bmp");
+            //28 * 28 image
+            Bitmap bitmap = new Bitmap(@"");
             List<byte> bytes = new List<byte>();
             int j = 0;
             for (var y = 0; y < bitmap.Height; y++)
@@ -31,7 +32,8 @@ namespace UnitTest
                         .Result;
             Assert.AreEqual( System.Net.HttpStatusCode.OK, response.StatusCode);
             string result = await response.Content.ReadAsStringAsync();
-            Assert.AreEqual("7", result);
+            //image label
+            Assert.AreEqual("", result);
         }
     }
 }

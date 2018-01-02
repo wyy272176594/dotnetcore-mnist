@@ -24,7 +24,8 @@ namespace DotNetCoreMnist
         static void Main(string[] args)
         {
             Program program = new Program();
-            program.MnistDemo(false,5);
+            program.MnistDemo();
+            //program.MnistDemo(false,5);
             //Console.WriteLine("Hello World!");
         }
 
